@@ -3,28 +3,135 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DBA Sandbox Blog</title>
+  <title>DBA Command Center</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <header>
-    <h1>💾 DBA Sandbox & Lab</h1>
-    <p class="subtitle">Custom built from scratch by Vikas Padmashali</p>
-  </header>
-
-  <header>
-    <h2>Sandbox points</h2>
-    <p class="subtitle"></p>
-  </header>
-
-  <main>
-    <div class="post-card">
-      <span class="date">July 22, 2026</span>
-      <h2><a href="posts/rman-guide.html">Checking RMAN Backup Logs in Oracle</a></h2>
-      <p>A step-by-step breakdown of how to verify RMAN execution logs and diagnose failures...</p>
+  <header style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h1>💾 DBA Sandbox & Lab</h1>
+      <p class="subtitle">Custom built from scratch by Vikas Padmashali</p>
     </div>
+    <!-- Button to open Dialogue Box -->
+    <button id="open-modal-btn" class="btn">+ New Post</button>
+  </header>
+
+  <main id="post-list">
+    <!-- Posts will render automatically here -->
   </main>
+
+  <!-- 💬 DIALOGUE BOX MODAL -->
+  <dialog id="post-dialog">
+    <form id="post-form">
+      <h2 style="margin-top:0; color:#38bdf8;">✍️ Write New Post</h2>
+      
+      <label>GitHub Access Token (Saved in your browser):</label>
+      <input type="password" id="gh-token" placeholder="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" required>
+
+      <label>Post Title:</label>
+      <input type="text" id="post-title" placeholder="e.g. Resolving Oracle ORA-00060 Deadlock" required>
+
+      <label>Summary:</label>
+      <input type="text" id="post-summary" placeholder="Short description" required>
+
+      <label>Content (Markdown format):</label>
+      <textarea id="post-content" rows="6" placeholder="Write your post here..." required></textarea>
+
+      <div style="margin-top: 15px; display: flex; gap: 10px;">
+        <button type="submit" class="btn" style="flex:1;">🚀 Publish</button>
+        <button type="button" class="btn-cancel" onclick="document.getElementById('post-dialog').close()">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const repoOwner = 'VikasPadmashali123';
+    const repoName = 'dba-sandbox-blog';
+
+    // 1. Fetch & Display existing posts on load
+    fetch('posts.json')
+      .then(res => res.json())
+      .then(posts => {
+        const container = document.getElementById('post-list');
+        container.innerHTML = posts.map(post => `
+          <div class="post-card">
+            <span class="date">${post.date}</span>
+            <h2><a href="post.html?file=${post.id}">${post.title}</a></h2>
+            <p>${post.summary}</p>
+          </div>
+        `).join('');
+      }).catch(() => {
+        document.getElementById('post-list').innerHTML = `<p>No posts published yet!</p>`;
+      });
+
+    // 2. Handle Dialogue Box Modal
+    const modal = document.getElementById('post-dialog');
+    const savedToken = localStorage.getItem('gh_pat');
+    if (savedToken) document.getElementById('gh-token').value = savedToken;
+
+    document.getElementById('open-modal-btn').onclick = () => modal.showModal();
+
+    // 3. Save Post directly to GitHub API
+    document.getElementById('post-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const token = document.getElementById('gh-token').value;
+      const title = document.getElementById('post-title').value;
+      const summary = document.getElementById('post-summary').value;
+      const content = document.getElementById('post-content').value;
+
+      localStorage.setItem('gh_pat', token); // Remember token locally
+
+      const id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+      try {
+        // A. Upload the Markdown file to /posts/
+        const mdPath = `posts/${id}.md`;
+        const mdBase64 = btoa(unescape(encodeURIComponent(`# ${title}\n\n${content}`)));
+        
+        await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${mdPath}`, {
+          method: 'PUT',
+          headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `Post: ${title}`, content: mdBase64 })
+        });
+
+        // B. Fetch existing posts.json or start new array
+        let currentPosts = [];
+        let sha = null;
+
+        try {
+          const jsonRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/posts.json`, {
+            headers: { Authorization: `token ${token}` }
+          });
+          if (jsonRes.ok) {
+            const jsonData = await jsonRes.json();
+            sha = jsonData.sha;
+            currentPosts = JSON.parse(decodeURIComponent(escape(atob(jsonData.content))));
+          }
+        } catch (err) { /* File doesn't exist yet */ }
+
+        // C. Update posts.json automatically
+        currentPosts.unshift({ id, title, date, summary });
+        const newJsonBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(currentPosts, null, 2))));
+
+        await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/posts.json`, {
+          method: 'PUT',
+          headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: `Update posts.json for ${title}`,
+            content: newJsonBase64,
+            ...(sha && { sha })
+          })
+        });
+
+        alert('🎉 Published! Reloading page...');
+        location.reload();
+      } catch (err) {
+        alert('Error publishing post: ' + err.message);
+      }
+    };
+  </script>
 
 </body>
 </html>
