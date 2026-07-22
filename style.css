@@ -1,49 +1,51 @@
-/* Custom Styling - DBA Command Center */
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #0b0f19; /* రిచ్ డార్క్ వెబ్ బ్యాక్‌గ్రౌండ్ */
-  color: #f1f5f9;            /* బ్రైట్ మరియు క్లీన్ టెక్స్ట్ */
-  max-width: 720px;          /* రీడబిలిటీ కోసం 720px ఉత్తమం */
-  margin: 0 auto;
-  padding: 24px;
-  line-height: 1.7;          /* లైన్ల మధ్య మరింత స్పేస్ */
-}
-
-
-header {
-  border-bottom: 2px solid #F2710A;
-  padding-bottom: 20px;
-  margin-bottom: 30px;
-}
-
-h1 {
-  color: #F8B238; /* Terminal cyan */
-  margin-bottom: 5px;
-}
-
-p.subtitle {
-  color: #94a3b8;
-  font-style: italic;
-}
-
-.post-card {
-  background-color: #1e293b;
+/* Modal & Dialogue Styling */
+dialog {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #38bdf8;
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-left: 4px solid #F8B238;
+  padding: 25px;
+  max-width: 500px;
+  width: 90%;
 }
 
-.post-card h2 a {
-  color: #f8fafc;
-  text-decoration: none;
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.75);
 }
 
-.post-card h2 a:hover {
-  color: #F8B238;
-}
-
-.date {
+form label {
+  display: block;
+  margin-top: 12px;
   font-size: 0.85rem;
-  color: #64748b;
+  color: #94a3b8;
+}
+
+form input, form textarea {
+  width: 100%;
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #f8fafc;
+  padding: 8px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-top: 4px;
+}
+
+.btn {
+  background: #38bdf8;
+  color: #0f172a;
+  border: none;
+  padding: 10px 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: #475569;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 5px;
+  cursor: pointer;
 }
