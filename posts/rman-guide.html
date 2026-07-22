@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checking RMAN Logs</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+  <header>
+    <a href="../index.html" style="color: #38bdf8; text-decoration: none;">← Back to Home</a>
+  </header>
+
+  <article>
+    <h1>Checking RMAN Backup Logs in Oracle</h1>
+    <p class="date">Published: July 22, 2026</p>
+    <hr style="border-color: #334155; margin: 20px 0;">
+
+    <h3>1. Query V$RMAN_OUTPUT</h3>
+    <p>To check the in-memory output of active or recent RMAN jobs, run:</p>
+    <pre style="background: #020617; padding: 15px; border-radius: 5px; color: #4ade80;">
+SELECT SESSION_RECID, SESSION_STAMP, OUTPUT
+FROM V$RMAN_OUTPUT
+ORDER BY RECID ASC;</pre>
+
+    <h3>2. Key Status Checks</h3>
+    <p>Look for exit codes like <code>COMPLETED WITH WARNINGS</code> or <code>FAILED</code>.</p>
+  </article>
+
+</body>
+</html>
